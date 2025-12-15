@@ -90,46 +90,9 @@
 </head>
 <body>
 
-  
+  <button id="btnInstall" onclick="instalarPWA()" style="display:none;position:fixed;bottom:20px;right:20px;z-index:999;background:#6c63ff;color:#fff;border:none;padding:14px 18px;border-radius:12px;font-weight:bold;box-shadow:0 6px 20px rgba(0,0,0,.4)">📲 Instalar App</button>
 
-  <!-- CARD 2 -->
-  <div class="card">
-    <h2>⚡ Stamina ➜ Hora</h2>
-
-    <div class="tabs">
-      <div class="tab active" onclick="trocarAba(this,0)">Agora → Desejada</div>
-      <div class="tab" onclick="trocarAba(this,1)">Futuro → Desejada</div>
-    </div>
-
-    <div class="conteudo active">
-      <label>Stamina atual</label>
-      <input id="staminaAtual2" maxlength="5" placeholder="38:36" />
-
-      <label>Stamina desejada</label>
-      <input id="staminaDesejada" maxlength="5" placeholder="42:00" />
-
-      <button onclick="calcularHoraAgora()">Calcular horário</button>
-      <div id="resultado3" class="resultado"></div>
-    </div>
-
-    <div class="conteudo">
-      <label>Stamina conhecida</label>
-      <input id="staminaBase2" maxlength="5" placeholder="39:00" />
-
-      <label>Data e hora dessa stamina</label>
-      <div class="linha">
-        <input id="dataBase2" type="date" />
-        <input id="horaBase2" type="time" />
-      </div>
-
-      <label>Stamina desejada</label>
-      <input id="staminaDesejada2" maxlength="5" placeholder="42:00" />
-
-      <button onclick="calcularHoraFutura()">Calcular horário</button>
-      <div id="resultado4" class="resultado"></div>
-    </div>
-  </div>
-<!-- CARD 1 -->
+  <!-- CARD 1 -->
   <div class="card">
     <h2>⏱️ Hora ➜ Stamina</h2>
 
@@ -170,6 +133,44 @@
 
       <button onclick="calcularFuturo()">Calcular</button>
       <div id="resultado2" class="resultado"></div>
+    </div>
+  </div>
+
+  <!-- CARD 2 -->
+  <div class="card">
+    <h2>⚡ Stamina ➜ Hora</h2>
+
+    <div class="tabs">
+      <div class="tab active" onclick="trocarAba(this,0)">Agora → Desejada</div>
+      <div class="tab" onclick="trocarAba(this,1)">Futuro → Desejada</div>
+    </div>
+
+    <div class="conteudo active">
+      <label>Stamina atual</label>
+      <input id="staminaAtual2" maxlength="5" placeholder="38:36" />
+
+      <label>Stamina desejada</label>
+      <input id="staminaDesejada" maxlength="5" placeholder="42:00" />
+
+      <button onclick="calcularHoraAgora()">Calcular horário</button>
+      <div id="resultado3" class="resultado"></div>
+    </div>
+
+    <div class="conteudo">
+      <label>Stamina conhecida</label>
+      <input id="staminaBase2" maxlength="5" placeholder="39:00" />
+
+      <label>Data e hora dessa stamina</label>
+      <div class="linha">
+        <input id="dataBase2" type="date" />
+        <input id="horaBase2" type="time" />
+      </div>
+
+      <label>Stamina desejada</label>
+      <input id="staminaDesejada2" maxlength="5" placeholder="42:00" />
+
+      <button onclick="calcularHoraFutura()">Calcular horário</button>
+      <div id="resultado4" class="resultado"></div>
     </div>
   </div>
 
@@ -301,7 +302,27 @@
      39:00 + 6 min => 39:01
      Nunca passa de 42:00
   */
+
+  /* =================== INSTALL PWA =================== */
+  let deferredPrompt;
+
+  window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    deferredPrompt = e;
+    document.getElementById('btnInstall').style.display = 'block';
+  });
+
+  function instalarPWA(){
+    if(!deferredPrompt) return;
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.finally(()=>{
+      deferredPrompt = null;
+      document.getElementById('btnInstall').style.display = 'none';
+    });
+  }
+
 </script>
+
 <script>
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
@@ -311,7 +332,3 @@
 </script>
 </body>
 </html>
-
-
-
-

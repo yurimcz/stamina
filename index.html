@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Calculadora de Stamina</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: linear-gradient(135deg, #1e1e2f, #2a2a40);
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      gap: 30px;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 40px;
+      flex-wrap: wrap;
+    }
+
+    .card {
+      background: #1c1c2b;
+      padding: 30px;
+      border-radius: 16px;
+      width: 100%;
+      max-width: 460px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    }
+
+    h2 { text-align: center; margin-bottom: 10px; }
+
+    .tabs {
+      display: flex;
+      background: #2a2a3d;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+
+    .tab {
+      flex: 1;
+      padding: 10px;
+      text-align: center;
+      cursor: pointer;
+      font-weight: bold;
+      opacity: 0.7;
+    }
+
+    .tab.active {
+      background: #6c63ff;
+      opacity: 1;
+    }
+
+    .conteudo { display: none; }
+    .conteudo.active { display: block; }
+
+    label { font-size: 14px; opacity: 0.9; }
+
+    input, button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 8px;
+      margin-bottom: 16px;
+      border-radius: 10px;
+      border: none;
+      font-size: 15px;
+    }
+
+    input { background: #2a2a3d; color: #fff; }
+
+    button {
+      background: #6c63ff;
+      color: #fff;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .linha { display: flex; gap: 10px; }
+    .linha > div { flex: 1; }
+
+    .resultado {
+      text-align: center;
+      margin-top: 10px;
+      font-size: 17px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  
+
+  <!-- CARD 2 -->
+  <div class="card">
+    <h2>⚡ Stamina ➜ Hora</h2>
+
+    <div class="tabs">
+      <div class="tab active" onclick="trocarAba(this,0)">Agora → Desejada</div>
+      <div class="tab" onclick="trocarAba(this,1)">Futuro → Desejada</div>
+    </div>
+
+    <div class="conteudo active">
+      <label>Stamina atual</label>
+      <input id="staminaAtual2" maxlength="5" placeholder="38:36" />
+
+      <label>Stamina desejada</label>
+      <input id="staminaDesejada" maxlength="5" placeholder="42:00" />
+
+      <button onclick="calcularHoraAgora()">Calcular horário</button>
+      <div id="resultado3" class="resultado"></div>
+    </div>
+
+    <div class="conteudo">
+      <label>Stamina conhecida</label>
+      <input id="staminaBase2" maxlength="5" placeholder="39:00" />
+
+      <label>Data e hora dessa stamina</label>
+      <div class="linha">
+        <input id="dataBase2" type="date" />
+        <input id="horaBase2" type="time" />
+      </div>
+
+      <label>Stamina desejada</label>
+      <input id="staminaDesejada2" maxlength="5" placeholder="42:00" />
+
+      <button onclick="calcularHoraFutura()">Calcular horário</button>
+      <div id="resultado4" class="resultado"></div>
+    </div>
+  </div>
+<!-- CARD 1 -->
+  <div class="card">
+    <h2>⏱️ Hora ➜ Stamina</h2>
+
+    <div class="tabs">
+      <div class="tab active" onclick="trocarAba(this,0)">Agora → Futuro</div>
+      <div class="tab" onclick="trocarAba(this,1)">Futuro → Futuro</div>
+    </div>
+
+    <div class="conteudo active">
+      <label>Stamina atual</label>
+      <input id="staminaAtual" maxlength="5" placeholder="38:36" />
+
+      <label>Data e hora alvo</label>
+      <div class="linha">
+        <input id="dataAlvo" type="date" />
+        <input id="horaAlvo" type="time" />
+      </div>
+
+      <button onclick="calcularAgora()">Calcular</button>
+      <div id="resultado1" class="resultado"></div>
+    </div>
+
+    <div class="conteudo">
+      <label>Stamina conhecida</label>
+      <input id="staminaBase" maxlength="5" placeholder="39:00" />
+
+      <label>Data e hora dessa stamina</label>
+      <div class="linha">
+        <input id="dataBase" type="date" />
+        <input id="horaBase" type="time" />
+      </div>
+
+      <label>Data e hora futura</label>
+      <div class="linha">
+        <input id="dataFutura" type="date" />
+        <input id="horaFutura" type="time" />
+      </div>
+
+      <button onclick="calcularFuturo()">Calcular</button>
+      <div id="resultado2" class="resultado"></div>
+    </div>
+  </div>
+
+<script>
+  /* =================== UTIL =================== */
+  const hoje = new Date().toISOString().slice(0,10);
+  ['dataAlvo','dataBase','dataFutura','dataBase2'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.value = hoje;
+  });
+
+  function trocarAba(el, i) {
+    const card = el.closest('.card');
+    card.querySelectorAll('.tab').forEach((t,idx)=>t.classList.toggle('active',idx===i));
+    card.querySelectorAll('.conteudo').forEach((c,idx)=>c.classList.toggle('active',idx===i));
+  }
+
+  function mask(el){
+    el.addEventListener('input',()=>{
+      let v = el.value.replace(/\D/g,'');
+      if(v.length >= 3) v = v.slice(0,2) + ':' + v.slice(2,4);
+      el.value = v;
+    });
+  }
+  document.querySelectorAll('input[maxlength="5"]').forEach(mask);
+
+  function parseHM(v){
+    if(!v || !v.includes(':')) return 0;
+    const [h,m] = v.split(':').map(Number);
+    return h*60 + m;
+  }
+
+  /* FIX: função estava ausente */
+  function formatHM(minutes) {
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    return `${String(hours).padStart(2,'0')}:${String(mins).padStart(2,'0')}`;
+  }
+
+  /* =================== LÓGICA STAMINA =================== */
+  const LIM39 = 39*60;
+  const LIM42 = 42*60;
+
+  function recuperar(stamina, minutos){
+    if(minutos <= 0) return stamina;
+
+    if(stamina < LIM39){
+      const falta = LIM39 - stamina;
+      const tempo = falta * 3;
+      if(minutos < tempo) return stamina + Math.floor(minutos/3);
+      stamina = LIM39;
+      minutos -= tempo;
+    }
+
+    stamina += Math.floor(minutos/6);
+    return Math.min(stamina, LIM42);
+  }
+
+  function tempoPara(staminaAtual, staminaDesejada){
+    if(staminaDesejada <= staminaAtual) return 0;
+
+    let min = 10; // delay inicial
+    let s = staminaAtual;
+
+    if(s < LIM39){
+      const alvo = Math.min(staminaDesejada, LIM39);
+      const delta = alvo - s;
+      if(delta > 0){ min += delta*3; s += delta; }
+    }
+
+    if(s < staminaDesejada){ min += (staminaDesejada - s)*6; }
+
+    return min;
+  }
+
+  /* =================== CARD 1 =================== */
+  function calcularAgora(){
+    const s = parseHM(staminaAtual.value);
+    const alvo = new Date(dataAlvo.value + 'T' + horaAlvo.value);
+    const agora = new Date();
+
+    let minutos = Math.floor((alvo - agora)/60000);
+    if(minutos <= 10){
+      resultado1.innerText = 'Stamina: ' + formatHM(s);
+      return;
+    }
+
+    minutos -= 10;
+    const final = recuperar(s, minutos);
+    resultado1.innerText = 'Stamina: ' + formatHM(final);
+  }
+
+  function calcularFuturo(){
+    const s = parseHM(staminaBase.value);
+    const inicio = new Date(dataBase.value + 'T' + horaBase.value);
+    const fim = new Date(dataFutura.value + 'T' + horaFutura.value);
+
+    let minutos = Math.floor((fim - inicio)/60000);
+    if(minutos <= 0){
+      resultado2.innerText = 'Inválido';
+      return;
+    }
+
+    const final = recuperar(s, minutos);
+    resultado2.innerText = 'Stamina: ' + formatHM(final);
+  }
+
+  /* =================== CARD 2 =================== */
+  function calcularHoraAgora(){
+    const a = parseHM(staminaAtual2.value);
+    // se stamina desejada vazia, assume 42:00
+    const d = staminaDesejada.value ? parseHM(staminaDesejada.value) : LIM42;
+    const alvo = new Date(Date.now() + tempoPara(a,d)*60000);
+    resultado3.innerText = alvo.toLocaleString('pt-BR');
+  }
+
+  function calcularHoraFutura(){
+    const a = parseHM(staminaBase2.value);
+    // se stamina desejada vazia, assume 42:00
+    const d = staminaDesejada2.value ? parseHM(staminaDesejada2.value) : LIM42;
+    const base = new Date(dataBase2.value + 'T' + horaBase2.value);
+    const alvo = new Date(base.getTime() + tempoPara(a,d)*60000);
+    resultado4.innerText = alvo.toLocaleString('pt-BR');
+  }
+
+  /* =================== TESTES MANUAIS ===================
+     41:00 + 82 min (após delay) => ~41:13
+     38:00 + 3 min => 38:01
+     39:00 + 6 min => 39:01
+     Nunca passa de 42:00
+  */
+</script>
+</body>
+</html>

@@ -302,8 +302,16 @@
      Nunca passa de 42:00
   */
 </script>
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/stamina/sw.js');
+    });
+  }
+</script>
 </body>
 </html>
+
 
 
 

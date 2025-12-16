@@ -190,20 +190,68 @@
     card.querySelectorAll('.conteudo').forEach((c,idx)=>c.classList.toggle('active',idx===i));
   }
 
-  function mask(el){
-    el.addEventListener('input',()=>{
-      let v = el.value.replace(/\D/g,'');
-      if(v.length >= 3) v = v.slice(0,2) + ':' + v.slice(2,4);
-      el.value = v;
-    });
-  }
-  document.querySelectorAll('input[maxlength="5"]').forEach(mask);
+function aplicarMascaraStamina(el){
 
-  function parseHM(v){
-    if(!v || !v.includes(':')) return 0;
-    const [h,m] = v.split(':').map(Number);
-    return h*60 + m;
-  }
+  // Enquanto digita: só limita caracteres, NÃO formata
+  el.addEventListener('input',()=>{
+    el.value = el.value.replace(/[^\d:]/g,'').slice(0,5);
+  });
+
+  // Garante que o ':' apareça se o usuário apagar tudo
+  el.addEventListener('keyup',()=>{
+    if(el.value.length === 2 && !el.value.includes(':')){
+      el.value += ':';
+    }
+  });
+
+  // Validação final (único lugar que corrige)
+  el.addEventListener('blur',()=>{
+    let v = el.value.replace(/\D/g,'');
+
+    if(!v){
+      el.value = '';
+      return;
+    }
+
+    if(v.length < 3) v = v.padStart(4,'0');
+    if(v.length === 3) v = '0' + v;
+
+    let h = Number(v.slice(0,2));
+    let m = Number(v.slice(2));
+
+    if(isNaN(h)) h = 0;
+    if(isNaN(m)) m = 0;
+
+    if(h > 42){ h = 42; m = 0; }
+    if(h === 42) m = 0;
+    if(m > 59) m = 59;
+
+    el.value =
+      String(h).padStart(2,'0') + ':' +
+      String(m).padStart(2,'0');
+  });
+}
+
+document
+  .querySelectorAll('input[maxlength="5"]')
+  .forEach(aplicarMascaraStamina);
+
+
+
+ function parseHM(v){
+  if(!v || !v.includes(':')) return 0;
+
+  let [h,m] = v.split(':').map(Number);
+
+  if(isNaN(h)) h = 0;
+  if(isNaN(m)) m = 0;
+
+  if(h > 42){ h = 42; m = 0; }
+  if(h === 42) m = 0;
+  if(m > 59) m = 59;
+
+  return h*60 + m;
+}
 
   /* FIX: função estava ausente */
   function formatHM(minutes) {
@@ -334,4 +382,5 @@
 </script>
 </body>
 </html>
+
 
